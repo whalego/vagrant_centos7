@@ -1,0 +1,22 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+
+  config.vm.box = "centos/7"
+  config.disksize.size = '30GB'
+  config.vbguest.auto_update = false
+  config.vm.network "private_network", ip: "192.168.33.10"
+
+  config.vm.provider "virtualbox" do |v|
+    v.cpus = 2
+    v.memory = 4096
+  end
+
+  config.vm.synced_folder "../vagrant", "/home/vagrant/work"
+  config.vm.provision :shell, :path => "setup.sh"
+  config.vm.provision "shell", inline: <<-SHELL
+    sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/g' /etc/ssh/sshd_config
+    systemctl restart sshd.service
+  SHELL
+end
